@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>Historial de {{ paciente.nombre }}</title>
+</head>
+
+<body>
+
+<header class="main-header">
+    <div class="header-content">
+        <h1>TechSolutions S.A. - Gestión de Citas Médicas</h1>
+        <p>Historial Médico Completo</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Navegación de regreso -->
+    <div class="navigation-bar">
+        <a href="{{ url_for('dashboard') }}" class="btn-back">
+            ← Volver al Dashboard
+        </a>
+        <h1>Historial de {{ paciente.nombre }}</h1>
+        <div class="patient-actions">
+            <a href="{{ url_for('eliminar_paciente_confirmacion', paciente_id=paciente.id) }}" class="btn-eliminar-paciente">
+                🗑️ Eliminar Paciente
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensaje de feedback -->
+    {% if message %}
+        <div class="feedback-message {% if success %}success{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <!-- Información del Paciente -->
+    <div class="patient-info-card">
+        <h2>📋 Información del Paciente</h2>
+        <div class="patient-details">
+            <div class="detail-row">
+                <div class="detail-group">
+                    <label>Nombre Completo:</label>
+                    <span>{{ paciente.nombre }}</span>
+                </div>
+                <div class="detail-group">
+                    <label>Edad:</label>
+                    <span>{{ paciente.edad }} años</span>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-group">
+                    <label>Email:</label>
+                    <span>{{ paciente.email }}</span>
+                </div>
+                <div class="detail-group">
+                    <label>Teléfono:</label>
+                    <span>{{ paciente.telefono or "No proporcionado" }}</span>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-group">
+                    <label>Fecha de Registro:</label>
+                    <span>{{ paciente.fecha_registro.strftime("%d de %B de %Y") if paciente.fecha_registro else "No especificada" }}</span>
+                </div>
+                <div class="detail-group">
+                    <label>Médico Asignado:</label>
+                    <span>{{ medico_nombre }}</span>
+                </div>
+            </div>
+
+            {% if paciente.historial %}
+            <div class="detail-full">
+                <label>Historial Médico:</label>
+                <div class="historial-content">{{ paciente.historial }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Botón para nueva cita -->
+    <div class="action-section">
+        {% if request.args.get('nueva_cita') %}
+            <a href="{{ url_for('historial_paciente', paciente_id=paciente.id) }}" class="btn-toggle-form btn-ocultar">
+                ✕ Cancelar nueva cita
+            </a>
+        {% else %}
+            <a href="{{ url_for('historial_paciente', paciente_id=paciente.id, nueva_cita='true') }}" class="btn-toggle-form btn-mostrar">
+                ➕ Agendar nueva cita
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Formulario para nueva cita (solo visible si se solicita) -->
+    {% if request.args.get('nueva_cita') %}
+    <div class="form-container">
+        <h2>📅 Nueva Cita para {{ paciente.nombre }}</h2>
+        <form method="POST" action="{{ url_for('agregar_cita_historial', paciente_id=paciente.id) }}" class="form-cita">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fecha">Fecha de la cita *</label>
+                    <input type="date" id="fecha" name="fecha" value="{{ fecha_hoy }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora">Hora de la cita *</label>
+                    <input type="time" id="hora" name="hora" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label for="motivo">Motivo de la consulta *</label>
+                    <textarea id="motivo" name="motivo" rows="3" required placeholder="Describa el motivo de la consulta..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-agregar-paciente">Agendar Cita</button>
+                <a href="{{ url_for('historial_paciente', paciente_id=paciente.id) }}" class="btn-cancelar-form">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Historial de Citas -->
+    <div class="citas-section">
+        <h2>📅 Historial de Citas</h2>
+        
+        {% if citas %}
+            <!-- Estadísticas de citas -->
+            <div class="stats-cards">
+                <div class="stat-card stat-total">
+                    <div class="stat-number">{{ citas|length }}</div>
+                    <div class="stat-label">Total de Citas</div>
+                </div>
+                <div class="stat-card stat-active">
+                    <div class="stat-number">{{ citas_activas }}</div>
+                    <div class="stat-label">Citas Activas</div>
+                </div>
+                <div class="stat-card stat-cancelled">
+                    <div class="stat-number">{{ citas_canceladas }}</div>
+                    <div class="stat-label">Citas Canceladas</div>
+                </div>
+            </div>
+
+            <!-- Tabla de citas -->
+            <div class="citas-table-container">
+                <table class="citas-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr class="{% if cita[5] %}cita-cancelada{% else %}cita-activa{% endif %}">
+                            <td>
+                                <div class="fecha-display">
+                                    <span class="fecha-day">{{ cita[2].strftime("%d") }}</span>
+                                    <span class="fecha-month">{{ cita[2].strftime("%b %Y") }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="hora-display">{{ cita[3].strftime("%I:%M %p") }}</span>
+                            </td>
+                            <td>
+                                <div class="motivo-cell">{{ cita[4] }}</div>
+                            </td>
+                            <td>
+                                <span class="estado-badge {% if cita[5] %}estado-cancelada{% else %}estado-activa{% endif %}">
+                                    {{ "Cancelada" if cita[5] else "Activa" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if not cita[5] %}
+                                    <form action="{{ url_for('cancelar_cita', cita_id=cita[0]) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta cita?');">
+                                        <input type="hidden" name="redirect_to" value="historial">
+                                        <input type="hidden" name="paciente_id" value="{{ paciente.id }}">
+                                        <button type="submit" class="btn-cancelar">Cancelar</button>
+                                    </form>
+                                {% else %}
+                                    <span class="action-disabled">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <h3>No hay citas registradas</h3>
+                <p>Este paciente no tiene citas programadas aún.</p>
+                <a href="{{ url_for('historial_paciente', paciente_id=paciente.id, nueva_cita='true') }}" class="btn-toggle-form btn-mostrar">
+                    Agendar primera cita
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Botón de regreso -->
+    <div class="back-section">
+        <a href="{{ url_for('dashboard') }}" class="btn-back-bottom">
+            ← Regresar al Dashboard
+        </a>
+    </div>
+
+</div>
+
+<script>
+    // Establecer fecha mínima como hoy para todos los formularios de cita
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(input => input.setAttribute('min', today));
+</script>
+
+</body>
+</html>

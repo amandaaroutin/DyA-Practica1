@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+<header class="main-header">
+    <div class="header-content">
+        <h1>TechSolutions S.A. - Gestión de Citas Médicas</h1>
+        <p>Prototipo funcional para clínicas privadas</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <h1>¡Bienvenid@, {{ user_name }}!</h1>
+
+    <!-- Botón para mostrar/ocultar formulario de agregar paciente -->
+    <div style="margin-bottom: 20px;">
+        {% if request.args.get('mostrar_formulario') %}
+            <a href="{{ url_for('dashboard') }}" class="btn-toggle-form btn-ocultar">
+                ✕ Ocultar formulario de nuevo paciente
+            </a>
+        {% else %}
+            <a href="{{ url_for('dashboard', mostrar_formulario='true') }}" class="btn-toggle-form btn-mostrar">
+                ➕ Agregar nuevo paciente
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Formulario para agregar paciente (solo visible si se solicita) -->
+    {% if request.args.get('mostrar_formulario') %}
+    <div class="form-container">
+        <h2>Agregar nuevo paciente</h2>
+        <form method="POST" action="{{ url_for('agregar_paciente') }}" class="form-paciente">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre completo *</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edad">Edad *</label>
+                    <input type="number" id="edad" name="edad" min="1" max="120" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Número telefónico</label>
+                    <input type="text" id="telefono" name="telefono" placeholder="Ej: +52 555 123 4567">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fecha_registro">Fecha de registro *</label>
+                    <input type="date" id="fecha_registro" name="fecha_registro" value="{{ fecha_hoy }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="historial">Historial resumido</label>
+                    <textarea id="historial" name="historial" rows="3" placeholder="Breve resumen del historial médico del paciente..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-agregar-paciente">Agregar paciente</button>
+                <a href="{{ url_for('dashboard') }}" class="btn-cancelar-form">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Mensaje de feedback -->
+    {% if message %}
+        <div class="feedback-message {% if success %}success{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <!-- Barra de búsqueda de pacientes -->
+    <div class="search-section">
+        <h2>🔍 Buscar Paciente por ID</h2>
+        <form method="GET" action="{{ url_for('dashboard') }}" class="search-form">
+            <div class="search-input-group">
+                <input type="number" name="buscar_id" placeholder="Ingresa el ID del paciente" 
+                       value="{{ request.args.get('buscar_id', '') }}" min="1">
+                <button type="submit" class="btn-buscar">Buscar</button>
+                {% if request.args.get('buscar_id') %}
+                    <a href="{{ url_for('dashboard') }}" class="btn-limpiar">Limpiar</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <h2>Lista de Pacientes</h2>
+
+    <!-- Información de búsqueda -->
+    {% if request.args.get('buscar_id') %}
+        <div class="search-info">
+            {% if pacientes %}
+                <p class="search-result-success">
+                    ✅ <strong>Paciente encontrado</strong> - Mostrando resultados para ID: {{ request.args.get('buscar_id') }}
+                </p>
+            {% else %}
+                <p class="search-result-empty">
+                    ❌ <strong>No se encontró ningún paciente</strong> con ID: {{ request.args.get('buscar_id') }}
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if pacientes %}
+    <table style="width:100%; border-collapse: collapse; margin-bottom: 30px;">
+        <thead>
+            <tr style="background-color:#f0f0f0;">
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Fecha de registro</th>
+                <th>Ver Historial</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paciente in pacientes %}
+            <tr>
+                <td><strong>{{ paciente.id }}</strong></td>
+                <td>{{ paciente.nombre }}</td>
+                <td>{{ paciente.edad }}</td>
+                <td>{{ paciente.email }}</td>
+                <td>{{ paciente.telefono or "-" }}</td>
+                <td>{{ paciente.fecha_registro.strftime("%d-%m-%Y") if paciente.fecha_registro else "-" }}</td>
+                <td>
+                    <a href="{{ url_for('historial_paciente', paciente_id=paciente.id) }}" class="btn-historial">
+                        📋 Historial
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        {% if request.args.get('buscar_id') %}
+            <div class="empty-search-state">
+                <div class="empty-icon">🔍</div>
+                <h3>Paciente no encontrado</h3>
+                <p>No se encontró ningún paciente con el ID <strong>{{ request.args.get('buscar_id') }}</strong>.</p>
+                <p>Verifica que el ID sea correcto y que el paciente pertenezca a tu consulta.</p>
+                <a href="{{ url_for('dashboard') }}" class="btn-toggle-form btn-mostrar">Ver todos los pacientes</a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <h3>No hay pacientes registrados</h3>
+                <p>Agrega tu primer paciente usando el formulario de arriba.</p>
+            </div>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- Botón de cerrar sesión -->
+    <a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('¿Estás seguro de que deseas cerrar sesión?');">Cerrar Sesión</a>
+
+</div>
+
+<script>
+    // Establecer fecha mínima como hoy para todos los formularios de cita
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(input => input.setAttribute('min', today));
+</script>
+
+</body>
+</html>

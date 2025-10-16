@@ -1,0 +1,189 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+
+.main-header {
+    background: linear-gradient(90deg,#007bff 0%,#0056b3 100%);
+    color: #fff;
+    padding: 32px 0 22px 0;
+    text-align: center;
+    border-radius: 0;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    margin-top: 0;
+    top: 0;
+}
+.header-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.main-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    letter-spacing: 1.5px;
+    font-weight: 800;
+}
+.main-header p {
+    margin: 10px 0 0 0;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.container {
+    background: #fff;
+    max-width: 400px;
+    margin: 40px auto 0 auto;
+    padding: 32px 28px 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(80,80,160,0.10);
+}
+
+h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.1em;
+    font-weight: 700;
+}
+
+h2 {
+    margin-top: 0;
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #007bff;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #444;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1em;
+    background: #f8fafc;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+    border: 1.5px solid #4e54c8;
+    outline: none;
+    background: #fff;
+}
+
+button {
+    width: 100%;
+    padding: 10px 0;
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.08em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+}
+
+.toggle-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.toggle-btn {
+    background: none;
+    color: #007bff;
+    border: none;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    text-decoration: underline;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.toggle-btn:hover {
+    color: #222;
+}
+
+.feedback-message {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 500;
+    font-size: 1em;
+    padding: 10px 0;
+    border-radius: 6px;
+}
+
+.feedback-message {
+    color: #fff;
+    background: #ff4b2b;
+}
+
+.feedback-message[style*="green"] {
+    background: #43e97b;
+    color: #222;
+}
+
+ul {
+    padding-left: 18px;
+    margin-bottom: 18px;
+}
+
+.logout-btn, .cancelar-cita-btn, .volver-dashboard-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 10px 0;
+    background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 18px;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.logout-btn:hover, .cancelar-cita-btn:hover, .volver-dashboard-btn:hover {
+    background: linear-gradient(90deg, #ff4b2b 0%, #ff416c 100%);
+}
+
+@media (max-width: 500px) {
+    .container {
+        max-width: 98vw;
+        padding: 18px 6vw 18px 6vw;
+    }
+    .header-content {
+        padding: 0 8px;
+    }
+}

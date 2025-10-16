@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>Eliminar Paciente - {{ paciente.nombre }}</title>
+</head>
+
+<body>
+
+<header class="main-header">
+    <div class="header-content">
+        <h1>TechSolutions S.A. - Gestión de Citas Médicas</h1>
+        <p>Confirmación de Eliminación</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Navegación de regreso -->
+    <div class="navigation-bar">
+        <a href="{{ url_for('historial_paciente', paciente_id=paciente.id) }}" class="btn-back">
+            ← Volver al Historial
+        </a>
+        <h1>⚠️ Confirmar Eliminación</h1>
+    </div>
+
+    <!-- Advertencia de eliminación -->
+    <div class="warning-card">
+        <div class="warning-icon">⚠️</div>
+        <h2>¿Estás seguro de que deseas eliminar este paciente?</h2>
+        <p class="warning-text">
+            Esta acción es <strong>permanente</strong> y no se puede deshacer. 
+            Al eliminar al paciente se perderán:
+        </p>
+        <ul class="warning-list">
+            <li>✗ Toda la información personal del paciente</li>
+            <li>✗ Su historial médico completo</li>
+            <li>✗ Todas las citas programadas ({{ total_citas }} citas)</li>
+            <li>✗ Todo el registro de consultas anteriores</li>
+        </ul>
+    </div>
+
+    <!-- Información del paciente a eliminar -->
+    <div class="patient-info-deletion">
+        <h3>📋 Información del Paciente a Eliminar</h3>
+        <div class="patient-summary">
+            <div class="summary-row">
+                <span class="summary-label">Nombre:</span>
+                <span class="summary-value">{{ paciente.nombre }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Edad:</span>
+                <span class="summary-value">{{ paciente.edad }} años</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Email:</span>
+                <span class="summary-value">{{ paciente.email }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Teléfono:</span>
+                <span class="summary-value">{{ paciente.telefono or "No proporcionado" }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Fecha de registro:</span>
+                <span class="summary-value">{{ paciente.fecha_registro.strftime("%d de %B de %Y") if paciente.fecha_registro else "No especificada" }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Total de citas:</span>
+                <span class="summary-value">{{ total_citas }} citas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de confirmación -->
+    <div class="confirmation-section">
+        <h3>Confirmación requerida</h3>
+        <p>Para proceder con la eliminación, escribe <strong>"ELIMINAR"</strong> en el campo de abajo:</p>
+        
+        <form method="POST" action="{{ url_for('eliminar_paciente', paciente_id=paciente.id) }}" class="confirmation-form">
+            <div class="form-group">
+                <label for="confirmacion">Escribe "ELIMINAR" para confirmar:</label>
+                <input type="text" id="confirmacion" name="confirmacion" placeholder="ELIMINAR" required>
+                <small class="form-help">Debe escribir exactamente "ELIMINAR" (sin comillas)</small>
+            </div>
+
+            <div class="form-actions-deletion">
+                <button type="submit" class="btn-confirmar-eliminacion">
+                    🗑️ SÍ, ELIMINAR PACIENTE
+                </button>
+                <a href="{{ url_for('historial_paciente', paciente_id=paciente.id) }}" class="btn-cancelar-eliminacion">
+                    ✕ Cancelar y Volver
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Mensaje de seguridad -->
+    <div class="security-note">
+        <p><strong>Nota de seguridad:</strong> Esta acción requiere confirmación explícita para prevenir eliminaciones accidentales. Si no estás completamente seguro, te recomendamos cancelar esta operación.</p>
+    </div>
+
+</div>
+
+</body>
+</html>
